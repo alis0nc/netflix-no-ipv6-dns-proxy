@@ -23,11 +23,27 @@ blocked (\*.netflix.com) and nothing that we don't want blocked.
 
 The only dependency is Twisted Names for Python.
 
-## Configuration
+## Installation and Configuration
 
-Open `server.py` and configure the `OPTIONS` dict according to the comments.
-Here you will be able to configure which address and port this server binds to,
-as well as which DNS server it will forward requests to.
+1. Clone the repository.
+1. Build the Docker image with `docker build -t netflix-dns-proxy .`
+1. Set the proper environment variables:
+    * `BLACKHOLE_ADDRESS`: Set this to an IPv6 address and all blocked queries
+      will return this address instead of an empty result set. The Android Netflix
+      client has (for me) started getting testy when AAAA queries return nothing.
+      Set this to an address in an unreachable route to resolve that issue.  I
+      suggest `100::1` as this is within the RFC6666-specified discard prefix, and
+      null-routing the `100::/64` address range on your router.
+    * `UPSTREAM_DNS_HOST`: Set this to the upstream DNS host, if you are only
+      using a single one.
+    * `UPSTREAM_DNS_PORT`: Set this to the upstream DNS port, if it's not 53.
+    * `RESOLV_CONF`: If you are using multiple upstream DNS servers, you will
+      have to set this to the path to the `resolv.conf` file that describes them.
+      I suggest using a Docker volume to persist this.
+1. Run the Docker container with exporting the environment variables:
+   `docker run --rm -p 10053:53 -p 10053:53/udp -e UPSTREAM_DNS_HOST -e UPSTREAM_DNS_PORT -e RESOLV_CONF -e BLACKHOLE_ADDRESS --name netflix-proxy netflix-proxy:latest`
+
+
 
 The Netflix apps for Chromecast and Android have started **ignoring the DNS
 servers announced over DHCP and will send queries directly to 8.8.8.8 and/or
@@ -53,30 +69,3 @@ advertising itself as a DNS server to DHCP clients.  Put `dhcp-option=6,$IP` in
 `dnsmasq.conf` (changing `$IP` to the server's LAN IP) to fix this.  Note that
 this will not work when dnsmasq is serving multiple different DHCP ranges,
 unless you use an IP address that is reachable from all of those networks.
-
-## Installation
-
-Clone this repository into `/opt/netflix-no-ipv6-dns-proxy`.  (You can clone as
-any user, but the server must be run as root in order to bind to port 53.)
-
-Run the following commands to install the systemd service:
-
-    cp /opt/netflix-no-ipv6-dns-proxy/netflix-no-ipv6-dns-proxy.service /etc/systemd/system/
-    systemctl enable netflix-no-ipv6-dns-proxy.service
-    systemctl start netflix-no-ipv6-dns-proxy.service
-
-If you don't want to have to keep the unit file up to date manually, you can
-symlink it (`ln -s`) if your version of systemd works with symlinked unit
-files, or hardlink it if `/opt/netflix-no-ipv6-dns-proxy` and
-`/etc/systemd/system` exist on the same volume.
-
-If you're using a system that's not using systemd, install the init script and start the service as follows:
-
-    cp netflix-no-ipv6-dns-proxy.init /etc/init.d/netflix-no-ipv6-dns-proxy
-    update-rc.d -n netflix-no-ipv6-dns-proxy defaults
-    service netflix-no-ipv6-dns-proxy start
-
-If you're using launchd (eg: macOS), install the launchd.plist and load the service as follows:
-
-    sudo cp com.github.cdhowie.netflix-no-ipv6-dns-proxy.plist /Library/LaunchDaemons
-    sudo launchctl load -w /Library/LaunchDaemons/com.github.cdhowie.netflix-no-ipv6-dns-proxy.plist
