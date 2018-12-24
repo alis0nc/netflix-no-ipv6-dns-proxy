@@ -1,4 +1,4 @@
-# netflix-no-ipv6-dns-proxy
+# netflix-no-ipv6-dns-proxy ![Travis-CI build badge](https://travis-ci.org/alis0nc/netflix-no-ipv6-dns-proxy.svg?branch=master)
 
 This is a DNS server that intentionally returns an empty result set for any
 AAAA query for netflix.com or any subdomain thereof.  The intent is to force
