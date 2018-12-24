@@ -1,0 +1,11 @@
+services:
+  - docker
+
+install:
+  - docker build -t netflix-dns-proxy .
+  - docker run -d -p 8053:53/udp -p 8053:53 -e UPSTREAM_DNS_HOST="1.1.1.1" --name netflix-dns-proxy netflix-dns-proxy
+
+script:
+  - docker ps | grep -q netflix-dns-proxy
+  - docker logs netflix-dns-proxy
+  - sleep 10 && [[ -z $(dig @localhost -p 8053 netflix.com aaaa +short) ]] || exit 1
