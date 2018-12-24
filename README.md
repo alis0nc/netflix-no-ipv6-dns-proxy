@@ -1,4 +1,6 @@
-# netflix-no-ipv6-dns-proxy ![Travis-CI build badge](https://travis-ci.org/alis0nc/netflix-no-ipv6-dns-proxy.svg?branch=master)
+# netflix-no-ipv6-dns-proxy [![Travis-CI build badge](https://travis-ci.org/alis0nc/netflix-no-ipv6-dns-proxy.svg?branch=master)](https://travis-ci.org/alis0nc/netflix-no-ipv6-dns-proxy)
+
+[![dockeri badge with docker hub stats](https://dockeri.co/image/alisonc42/netflix-dns-proxy)](https://hub.docker.com/r/alisonc42/netflix-dns-proxy)
 
 This is a DNS server that intentionally returns an empty result set for any
 AAAA query for netflix.com or any subdomain thereof.  The intent is to force
