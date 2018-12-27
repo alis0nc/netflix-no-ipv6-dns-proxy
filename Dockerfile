@@ -8,6 +8,7 @@ RUN apk --no-cache add py-twisted py2-pip && \
 COPY . /opt/netflix-no-ipv6-dns-proxy/
 
 EXPOSE 53
+EXPOSE 53/udp
 
 WORKDIR /opt/netflix-no-ipv6-dns-proxy/
 ENTRYPOINT ./server.py
